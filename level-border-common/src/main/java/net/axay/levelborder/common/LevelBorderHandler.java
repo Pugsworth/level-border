@@ -105,9 +105,16 @@ public abstract class LevelBorderHandler<Player, WorldBorder, Server> {
         updateForAll();
     }
 
+    protected WorldBorder getBorder(Player player) {
+        return borders.get(getUUID(player));
+    }
+
     abstract protected BorderMode getMode();
 
     abstract protected WorldBorder createWorldBorder(Player player);
+
+    public abstract void setCenter(Player player, Double x, Double z);
+
     abstract protected void setCenter(WorldBorder border, double centerX, double centerZ);
 
     abstract protected void initBorder(Player player, WorldBorder border, double size);

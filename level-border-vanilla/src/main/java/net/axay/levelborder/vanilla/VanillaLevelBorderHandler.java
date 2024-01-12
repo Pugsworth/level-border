@@ -4,6 +4,7 @@ import net.axay.levelborder.common.BorderMode;
 import net.axay.levelborder.common.LevelBorderHandler;
 import net.axay.levelborder.common.Pos3i;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
+import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,6 +52,15 @@ public abstract class VanillaLevelBorderHandler extends LevelBorderHandler<Serve
     @Override
     protected void setCenter(WorldBorder border, double centerX, double centerZ) {
         border.setCenter(centerX, centerZ);
+    }
+
+    @Override
+    public void setCenter(ServerPlayer serverPlayer, Double x, Double z) {
+        var border = getBorder(serverPlayer);
+        if (border != null) {
+            setCenter(border, x, z);
+            serverPlayer.connection.send(new ClientboundSetBorderCenterPacket(border));
+        }
     }
 
     @Override
