@@ -5,6 +5,7 @@ import java.util.*;
 public abstract class LevelBorderHandler<Player, WorldBorder, Server> {
     private final Map<UUID, WorldBorder> borders = new HashMap<>();
 
+
     private double calculateSize(Player player) {
         final int experience = switch (getMode()) {
             case OWN, SHARED -> getExperienceLevel(player);
@@ -29,7 +30,12 @@ public abstract class LevelBorderHandler<Player, WorldBorder, Server> {
         }
 
         final var border = createWorldBorder(player);
-        setCenter(border, spawn.x() + 0.5d, spawn.z() + 0.5d);
+        var center = getCenter(player);
+        if (center == null) {
+            center = spawn;
+        }
+
+        setCenter(border, center.x() + 0.5d, center.z() + 0.5d);
         initBorder(player, border, calculateSize(player));
         borders.put(getUUID(player), border);
 
@@ -48,6 +54,7 @@ public abstract class LevelBorderHandler<Player, WorldBorder, Server> {
 
     final public void onChangeLevel(Player player) {
         final var mode = getMode();
+
         if (mode != BorderMode.OWN) {
             if (mode == BorderMode.SHARED) {
                 shareExperience();
@@ -112,6 +119,14 @@ public abstract class LevelBorderHandler<Player, WorldBorder, Server> {
     abstract protected BorderMode getMode();
 
     abstract protected WorldBorder createWorldBorder(Player player);
+
+    /**
+     * Return the center of the border for the given player or null if the center is not set.
+     * If null, the center is the shared overworld spawn.
+     * @param player
+     * @return Pos3i?
+     */
+    public abstract Pos3i getCenter(Player player);
 
     public abstract void setCenter(Player player, Double x, Double z);
 

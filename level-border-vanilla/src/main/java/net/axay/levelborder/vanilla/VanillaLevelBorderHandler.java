@@ -3,6 +3,7 @@ package net.axay.levelborder.vanilla;
 import net.axay.levelborder.common.BorderMode;
 import net.axay.levelborder.common.LevelBorderHandler;
 import net.axay.levelborder.common.Pos3i;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
 import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket;
@@ -50,8 +51,25 @@ public abstract class VanillaLevelBorderHandler extends LevelBorderHandler<Serve
     }
 
     @Override
+    public Pos3i getCenter(ServerPlayer player) {
+        var borderModeSavedData = getServer().overworld().getDataStorage()
+                .computeIfAbsent(BorderModeSavedData::load, BorderModeSavedData::new, "levelBorder");
+        var center = borderModeSavedData.center;
+        if (center == null) {
+            return null;
+        }
+
+        return new Pos3i(center.getX(), 0, center.getZ());
+    }
+
+    @Override
     protected void setCenter(WorldBorder border, double centerX, double centerZ) {
         border.setCenter(centerX, centerZ);
+
+        var borderModeSavedData = getServer().overworld().getDataStorage()
+                .computeIfAbsent(BorderModeSavedData::load, BorderModeSavedData::new, "levelBorder");
+        borderModeSavedData.center = new Vec3i(centerX, 0, centerZ);
+        borderModeSavedData.setDirty();
     }
 
     @Override
